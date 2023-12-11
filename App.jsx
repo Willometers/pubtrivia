@@ -5,7 +5,6 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 
 function shuffleArray(array) {
-  // Fisher-Yates shuffle algorithm
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -17,6 +16,7 @@ function App() {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -38,22 +38,31 @@ function App() {
   }, [questions]);
 
   const handleAnswerClick = (questionId, selectedAnswer) => {
-    // Check if the selected answer is correct
-    const isCorrect = answers.find((q) => q.id === questionId).correctAnswer === selectedAnswer;
-    // Do something based on whether the answer is correct
+    const correctAnswer = answers.find((q) => q.id === questionId).correctAnswer;
+    const isCorrect = correctAnswer === selectedAnswer;
+
+    setSelectedAnswer(selectedAnswer);
+    setIsCorrect(isCorrect);
+
     console.log(`Answer for question ${questionId} is ${isCorrect ? 'correct' : 'incorrect'}`);
   };
 
   return (
     <div>
-      {/* Render your Quiz App with the loaded questions */}
       <h1>Quiz App</h1>
 
       {answers.map(({ id, question, answers }) => (
         <Card key={id} style={{ width: '35rem' }}>
           <h2>{question}</h2>
           {answers.map((a, index) => (
-            <Button key={index} onClick={() => handleAnswerClick(id, a)}>
+            <Button
+              key={index}
+              onClick={() => handleAnswerClick(id, a)}
+              style={{
+                backgroundColor:
+                  selectedAnswer === a && isCorrect !== null ? (isCorrect ? 'green' : 'red') : '',
+              }}
+            >
               {a}
             </Button>
           ))}
