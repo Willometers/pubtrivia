@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getQuestion } from './utils/questionsAPI';
 import './App.css';
 import Button from 'react-bootstrap/Button';
@@ -12,61 +12,62 @@ function shuffleArray(array) {
   return array;
 }
 
+const AnswerOption = ({ option, onClick, selectedAnswer, correctAnswer }) => (
+  <Button
+    onClick={() => onClick(option)}
+    style={{
+      backgroundColor:
+        selectedAnswer === option && selectedAnswer === correctAnswer ? 'green' : selectedAnswer === option ? 'red' : '',
+    }}
+  >
+    {option}
+  </Button>
+);
+
+const QuestionCard = ({ id, question, answers, correctAnswer, handleAnswerClick, selectedAnswer }) => (
+  <Card key={id} style={{ width: '35rem' }}>
+    <h2>{question}</h2>
+    {answers.map((option, index) => (
+      <AnswerOption
+        key={index}
+        option={option}
+        onClick={handleAnswerClick}
+        selectedAnswer={selectedAnswer}
+        correctAnswer={correctAnswer}
+      />
+    ))}
+  </Card>
+);
+
 function App() {
   const [questions, setQuestions] = useState([]);
-  const [answers, setAnswers] = useState([]);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [isCorrect, setIsCorrect] = useState(null);
 
   useEffect(() => {
     const loadQuestions = async () => {
       const loadedQuestions = await getQuestion();
-      setQuestions(loadedQuestions);
+      setQuestions(loadedQuestions.map((q) => ({ ...q, answers: shuffleArray([q.correctAnswer, ...q.incorrectAnswers]) })));
     };
     loadQuestions();
   }, []);
 
-  useEffect(() => {
-    if (questions) {
-      const allAnswers = questions.reduce((accumulator, question) => {
-        const { id, correctAnswer, incorrectAnswers } = question;
-        const shuffledAnswers = shuffleArray([correctAnswer, ...incorrectAnswers]);
-        return [...accumulator, { id, question: question.question, correctAnswer, answers: shuffledAnswers }];
-      }, []);
-      setAnswers(allAnswers);
-    }
-  }, [questions]);
-
-  const handleAnswerClick = (questionId, selectedAnswer) => {
-    const correctAnswer = answers.find((q) => q.id === questionId).correctAnswer;
-    const isCorrect = correctAnswer === selectedAnswer;
-
-    setSelectedAnswer(selectedAnswer);
-    setIsCorrect(isCorrect);
-
-    console.log(`Answer for question ${questionId} is ${isCorrect ? 'correct' : 'incorrect'}`);
+  const handleAnswerClick = (selectedOption) => {
+    setSelectedAnswer(selectedOption);
   };
 
   return (
     <div>
       <h1>Quiz App</h1>
-
-      {answers.map(({ id, question, answers }) => (
-        <Card key={id} style={{ width: '35rem' }}>
-          <h2>{question}</h2>
-          {answers.map((a, index) => (
-            <Button
-              key={index}
-              onClick={() => handleAnswerClick(id, a)}
-              style={{
-                backgroundColor:
-                  selectedAnswer === a && isCorrect !== null ? (isCorrect ? 'green' : 'red') : '',
-              }}
-            >
-              {a}
-            </Button>
-          ))}
-        </Card>
+      {questions.map((q) => (
+        <QuestionCard
+          key={q.id}
+          id={q.id}
+          question={q.question}
+          answers={q.answers}
+          correctAnswer={q.correctAnswer}
+          handleAnswerClick={handleAnswerClick}
+          selectedAnswer={selectedAnswer}
+        />
       ))}
     </div>
   );
