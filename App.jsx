@@ -21,17 +21,18 @@ const AnswerOption = ({ option, onClick, selectedAnswer, correctAnswer }) => (
       backgroundColor:
         selectedAnswer === option && selectedAnswer === correctAnswer ? 'green' : selectedAnswer === option ? 'red' : '',
     }}
-  >
+  > 
     {option}
   </Button>
 );
 
 // Component for rendering a question card
 const QuestionCard = ({ id, question, answers, correctAnswer, handleAnswerClick, selectedAnswer }) => (
-  <Card key={id} style={{ width: '35rem' }}>
-    <h2>{question}</h2>
+  <Card key={id} style={{ width: '35rem' }} class="container-fluid">
+    <Card.Body>{question}</Card.Body>
     {answers.map((option, index) => (
-      <AnswerOption
+      // renders answers as buttons via AnswerOption 
+      <AnswerOption 
         key={index}
         option={option}
         onClick={handleAnswerClick}
@@ -42,11 +43,11 @@ const QuestionCard = ({ id, question, answers, correctAnswer, handleAnswerClick,
   </Card>
 );
 
-
 // Main App component
 function App() {
   const [questions, setQuestions] = useState([]);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  console.log('q', questions)
 
   // Fetch questions and shuffle answer options on component mount
   useEffect(() => {
@@ -54,7 +55,9 @@ function App() {
       const loadedQuestions = await getQuestion();
       setQuestions(
         loadedQuestions.map((q) => ({
+          // set questions
           ...q,
+          // put answers into shuffleArray function taht returns shuffled array as answers into setQuestions
           answers: shuffleArray([q.correctAnswer, ...q.incorrectAnswers]),
         }))
       );
@@ -62,15 +65,15 @@ function App() {
     loadQuestions();
   }, []);
 
-  // Handle answer option click
+  // Handle answer option click to be passed into questionCard function
   const handleAnswerClick = (selectedOption) => {
     setSelectedAnswer(selectedOption);
   };
 
   return (
     <div>
-      <h1>Quiz App</h1>
-      {/* Map through questions and render QuestionCard for each */}
+      <h1>Pub Triva</h1>
+      {/* Map through questions and render QuestionCard for each, passing each element as a parameter */}
       {questions.map((q) => (
         <QuestionCard
           key={q.id}
@@ -84,7 +87,7 @@ function App() {
       ))}
       {/* Link to The Trivia API */}
       <a href="https://the-trivia-api.com/" target="_blank" rel="noopener noreferrer">
-        The Trivia API
+        TheTriviaAPI.com
       </a>
     </div>
   );
