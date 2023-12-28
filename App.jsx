@@ -47,7 +47,7 @@ const QuestionCard = ({ id, question, answers, correctAnswer, handleAnswerClick,
 function App() {
   const [questions, setQuestions] = useState([]);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
-  // console.log('q', questions)
+  const [score, setScore] = useState(0)
 
   // Fetch questions and shuffle answer options on component mount
   useEffect(() => {
@@ -66,13 +66,17 @@ function App() {
   }, []);
 
   // Handle answer option click to be passed into questionCard function
-  const handleAnswerClick = (selectedOption) => {
+  const handleAnswerClick = (selectedOption, correctAnswer) => {
     setSelectedAnswer(selectedOption);
+    console.log(questions)
+    if (selectedOption === correctAnswer)
+      setScore(score +1)
   };
 
   return (
     <div>
       <h1>Pub Triva</h1>
+      <h2>Score: {score}</h2>
       {/* Map through questions and render QuestionCard for each, passing each element as a parameter */}
       {questions.map((q) => (
         <QuestionCard
