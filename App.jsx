@@ -4,6 +4,8 @@ import './App.css';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 
+// if I break out the components and make the question into individual pages... then i can use state to hold correct answer and update score counter
+
 // Utility function to shuffle an array in-place
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -68,9 +70,13 @@ function App() {
   // Handle answer option click to be passed into questionCard function
   const handleAnswerClick = (selectedOption, correctAnswer) => {
     setSelectedAnswer(selectedOption);
-    console.log(questions)
-    if (selectedOption === correctAnswer)
-      setScore(score +1)
+    handleCounter(selectedOption, correctAnswer);
+  };
+
+  const handleCounter = (selectedOption, correctAnswer) => {
+    if (selectedOption === correctAnswer) {
+      setScore((prevScore) => prevScore + 1);
+    }
   };
 
   return (
@@ -78,6 +84,7 @@ function App() {
       <h1>Pub Triva</h1>
       <h2>Score: {score}</h2>
       {/* Map through questions and render QuestionCard for each, passing each element as a parameter */}
+      {/* correct answer is parsed here */}
       {questions.map((q) => (
         <QuestionCard
           key={q.id}
@@ -85,7 +92,7 @@ function App() {
           question={q.question}
           answers={q.answers}
           correctAnswer={q.correctAnswer}
-          handleAnswerClick={handleAnswerClick}
+          handleAnswerClick={(selectedOption) => handleAnswerClick(selectedOption, q.correctAnswer)}
           selectedAnswer={selectedAnswer}
         />
       ))}
